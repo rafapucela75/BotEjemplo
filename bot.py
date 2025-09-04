@@ -1,16 +1,15 @@
-import os
-import json
-import datetime
+import os, json, datetime
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 import gspread
 from google.oauth2.service_account import Credentials
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-# --- Configuración ---
+# --- Variables de entorno ---
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 SHEET_ID = os.getenv("SHEET_ID")
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")  # JSON completo como string
 
-# --- Cliente Google Sheets ---
+# --- Conexión a Google Sheets ---
 creds_info = json.loads(GOOGLE_CREDENTIALS)
 scopes = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -18,33 +17,29 @@ scopes = [
 ]
 creds = Credentials.from_service_account_info(creds_info, scopes=scopes)
 gc = gspread.authorize(creds)
-sheet = gc.open_by_key(SHEET_ID).sheet1  # primera pestaña
+sheet = gc.open_by_key(SHEET_ID).sheet1
 
 # --- Handlers ---
-def start(update, context):
-    update.message.reply_text("¡Hola! Estoy vivo en Render 🤖")
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("¡Hola! Estoy vivo en Replit 🤖")
     now = datetime.datetime.utcnow().isoformat()
     user = update.effective_user
     sheet.append_row([now, user.id, user.username or "", "/start"])
 
-def echo(update, context):
+async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
     now = datetime.datetime.utcnow().isoformat()
     user = update.effective_user
     sheet.append_row([now, user.id, user.username or "", text])
-    update.message.reply_text("¡Guardado en Google Sheets! 🗂️")
+    await update.message.reply_text("¡Guardado en Google Sheets! 🗂️")
 
-# --- Función principal ---
+# --- Main ---
 def main():
-    updater = Updater(BOT_TOKEN, use_context=True)
-    dp = updater.dispatcher
-
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
-
-    print("✅ Bot corriendo en Render Free (long polling)…")
-    updater.start_polling()
-    updater.idle()
+    app = Application.builder().token(BOT_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+    print("✅ Bot corriendo en Replit (long polling)…")
+    app.run_polling()
 
 if __name__ == "__main__":
     main()
