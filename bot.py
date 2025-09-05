@@ -62,14 +62,40 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("¡Hola! Estoy vivo en Replit 🤖")
     now = datetime.datetime.utcnow().isoformat()
     user = update.effective_user
-    sheet.append_row([now, user.id, user.username or "", "/start"])
+
+    user_id = str(user.id)
+    username = user.username if user.username else "Sin Identificar"
+    first = user.first_name or ""
+    last = user.last_name or ""
+    full_name = f"{first} {last}".strip()
+    if not full_name:
+        full_name = "Sin Identificar"
+    message = "/start"
+
+    row = [now, user_id, username, full_name, message]
+    print("Fila /start:", row)
+    sheet.append_row(row)
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
     now = datetime.datetime.utcnow().isoformat()
     user = update.effective_user
-    sheet.append_row([now, user.id, user.username or "", text])
+
+    user_id = str(user.id)
+    username = user.username if user.username else "Sin Identificar"
+    first = user.first_name or ""
+    last = user.last_name or ""
+    full_name = f"{first} {last}".strip()
+    if not full_name:
+        full_name = "Sin Identificar"
+    message = text
+
+    row = [now, user_id, username, full_name, message]
+    print("Fila mensaje:", row)
+    sheet.append_row(row)
+
     await update.message.reply_text("¡Guardado en Google Sheets! 🗂️")
+
 
 # --- Función principal ---
 def main():
@@ -82,3 +108,4 @@ def main():
     app.run_polling()
 if __name__ == "__main__":
     main()
+
