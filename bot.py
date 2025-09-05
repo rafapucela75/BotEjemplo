@@ -24,13 +24,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("¡Hola! Estoy vivo 🤖")
     now = datetime.datetime.utcnow().isoformat()
     user = update.effective_user
-    sheet.append_row([now, user.id, user.username or "", "/start"])
+    full_name = f"{user.first_name} {user.last_name or ''}".strip()
+    sheet.append_row([now, user.id, user.username or "", full_name, "/start"])
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
     now = datetime.datetime.utcnow().isoformat()
     user = update.effective_user
-    sheet.append_row([now, user.id, user.username or "", text])
+    full_name = f"{user.first_name} {user.last_name or ''}".strip()
+    sheet.append_row([now, user.id, user.username or "", full_name, text])
     await update.message.reply_text("¡Guardado en Google Sheets! 🗂️")
 
 # --- Bot ---
@@ -56,4 +58,5 @@ Thread(target=run).start()
 # --- Lanzar bot ---
 if __name__ == "__main__":
     main()
+
 
