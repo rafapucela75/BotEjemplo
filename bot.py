@@ -86,11 +86,58 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def ayuda(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "📚 *Comandos disponibles:*\n"
-        "/start – Inicia el bot\n"
-        "/ayuda – Muestra esta ayuda\n"
-        "Escribe cualquier mensaje y lo guardaré en Google Sheets 🗂️",
+        "/start – Inicia el bot y registra tu entrada\n"
+        "/ayuda – Muestra esta lista de comandos\n"
+        "/stats – Muestra cuántos mensajes ha enviado cada usuario\n"
+        "/ultimo – Muestra el último mensaje registrado en la hoja\n\n"
+        "💬 También puedes escribir cualquier mensaje y lo guardaré automáticamente en Google Sheets 🗂️",
         parse_mode="Markdown"
     )
+
+async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        data = sheet.get_all_values()
+        if len(data) <= 1:
+            await update.message.reply_text("No hay datos suficientes para mostrar estadísticas.")
+            return
+
+        # Extraer columna de IDs (índice 1)
+        user_counts = {}
+        for row in data[1:]:  # Saltar encabezados
+            user_id = row[1]
+            user_counts[user_id] = user_counts.get(user_id, 0) + 1
+
+        # Construir mensaje
+        lines = ["📊 *Estadísticas de mensajes:*"]
+        for uid, count in user_counts.items():
+            lines.append(f"• ID {uid}: {count} mensajes")
+
+        await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
+
+    except Exception as e:
+        await update.message.reply_text(f"Error al obtener estadísticas: {e}")
+
+async def ultimo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        data = sheet.get_all_values()
+        if len(data) <= 1:
+            await update.message.reply_text("No hay mensajes registrados aún.")
+            return
+
+        last_row = data[-1]
+        fecha, user_id, username, full_name, mensaje = last_row
+        respuesta = (
+            f"🕓 *Último mensaje registrado:*\n"
+            f"• Fecha: {fecha}\n"
+            f"• Usuario: {username}\n"
+            f"• Nombre: {full_name}\n"
+            f"• Mensaje: {mensaje}"
+        )
+        await update.message.reply_text(respuesta, parse_mode="Markdown")
+
+    except Exception as e:
+        await update.message.reply_text(f"Error al obtener el último mensaje: {e}")
+
 
 # --- Función principal ---
 def main():
@@ -98,6 +145,8 @@ def main():
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("ayuda", ayuda))
+    app.add_handler(CommandHandler("stats", stats))
+    app.add_handler(CommandHandler("ultimo", ultimo))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
     print("✅ Bot corriendo en Replit (long polling)…")
