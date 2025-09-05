@@ -73,7 +73,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = "/start"
 
     row = [now, user_id, username, full_name, message]
-    print("Fila /start:", row)
+    # print("Fila mensaje:", row)
     sheet.append_row(row)
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -108,4 +108,5 @@ def main():
     app.run_polling()
 if __name__ == "__main__":
     main()
+
 
