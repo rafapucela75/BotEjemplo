@@ -16,7 +16,8 @@ creds_info = json.loads(GOOGLE_CREDENTIALS)
 scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 creds = Credentials.from_service_account_info(creds_info, scopes=scopes)
 gc = gspread.authorize(creds)
-sheet = gc.open_by_key(SHEET_ID).sheet1
+# sheet = gc.open_by_key(SHEET_ID).sheet1
+sheet = gc.open_by_key(SHEET_ID).worksheet("CHAT")
 
 # --- Handlers ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -55,3 +56,4 @@ Thread(target=run).start()
 # --- Lanzar bot ---
 if __name__ == "__main__":
     main()
+
