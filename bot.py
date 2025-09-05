@@ -45,13 +45,16 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
 
     user_id = user.id
-    username = user.username or str(user_id)  # ← respaldo si no hay username
+    username = user.username if user.username else str(user_id)
     first = user.first_name or ""
     last = user.last_name or ""
-    full_name = f"{first} {last}".strip() or username or "Sin nombre"
+    full_name = f"{first} {last}".strip() or username
     message = text
 
-    sheet.append_row([now, user_id, username, full_name, message])
+    row = [now, user_id, username, full_name, message]
+    print("Fila que se va a escribir:", row)  # ← Verifica en consola
+    sheet.append_row(row)
+
     await update.message.reply_text("¡Guardado en Google Sheets! 🗂️")
 
 # --- Bot ---
@@ -77,6 +80,7 @@ Thread(target=run).start()
 # --- Lanzar bot ---
 if __name__ == "__main__":
     main()
+
 
 
 
