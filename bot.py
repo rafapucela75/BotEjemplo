@@ -19,6 +19,12 @@ gc = gspread.authorize(creds)
 # sheet = gc.open_by_key(SHEET_ID).sheet1
 sheet = gc.open_by_key(SHEET_ID).worksheet("CHAT")
 
+# --- Verificar y agregar encabezados ---
+HEADERS = ["Fecha", "ID", "Usuario", "Nombre Completo", "Mensaje"]
+
+if not sheet.get_all_values():  # Si la hoja está vacía
+    sheet.append_row(HEADERS)
+
 # --- Handlers ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("¡Hola! Estoy vivo 🤖")
@@ -58,5 +64,6 @@ Thread(target=run).start()
 # --- Lanzar bot ---
 if __name__ == "__main__":
     main()
+
 
 
