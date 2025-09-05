@@ -29,19 +29,29 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("¡Hola! Estoy vivo 🤖")
     now = datetime.datetime.utcnow().isoformat()
     user = update.effective_user
+
+    user_id = user.id
+    username = user.username or ""
     first = user.first_name or ""
     last = user.last_name or ""
-    full_name = f"{first} {last}".strip() or user.username or "Sin nombre"
-    sheet.append_row([now, user.id, user.username or "", full_name, "/start"])
+    full_name = f"{first} {last}".strip() or username or "Sin nombre"
+    message = "/start"
+
+    sheet.append_row([now, user_id, username, full_name, message])
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
     now = datetime.datetime.utcnow().isoformat()
     user = update.effective_user
+
+    user_id = user.id
+    username = user.username or ""
     first = user.first_name or ""
     last = user.last_name or ""
-    full_name = f"{first} {last}".strip() or user.username or "Sin nombre"
-    sheet.append_row([now, user.id, user.username or "", full_name, text])
+    full_name = f"{first} {last}".strip() or username or "Sin nombre"
+    message = text
+
+    sheet.append_row([now, user_id, username, full_name, message])
     await update.message.reply_text("¡Guardado en Google Sheets! 🗂️")
 
 # --- Bot ---
@@ -67,6 +77,7 @@ Thread(target=run).start()
 # --- Lanzar bot ---
 if __name__ == "__main__":
     main()
+
 
 
 
